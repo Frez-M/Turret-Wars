@@ -11,7 +11,8 @@ public class MainActivity extends AndroidApplication {
         super.onCreate(savedInstanceState);
         
         AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
+        cfg.useImmersiveMode = true;
         
-        initialize(new MyGdxGame(), cfg);
+		initialize(new GameLoop(), cfg);
     }
 }
