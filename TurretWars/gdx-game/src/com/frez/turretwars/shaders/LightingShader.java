@@ -13,4 +13,8 @@ public class LightingShader {
 		
 	}
 	
+	public ShaderProgram getProgram() {
+		return program;
+	}
+	
 }
