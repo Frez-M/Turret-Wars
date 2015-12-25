@@ -21,22 +21,24 @@ public class GameManager {
 		lastStateTime = System.currentTimeMillis();
 		nextStateTime = TIME_BUILD;
 		
-		TestEntity te = (TestEntity) EntityManager.createEntity(TestEntity.class);
+		EntityManager.createEntity(TestEntity.class);
 		//te.pos.set(50, 50);
 	}
 	
 	public void update() {
-		
+		GameWorld.update();
 		EntityManager.updateEntities();
 		
 	}
 	
 	public void render() {
-		Renderer.getSBWorld().begin();
-		Renderer.getSBWorld().draw(Textures.get("ground"), 0, 0, 50, 50);
-		Renderer.getSBWorld().end();
+		//Renderer.getSBWorld().begin();
+		//Renderer.getSBWorld().draw(Textures.get("ground"), 0, 0, 50, 50);
+		//Renderer.getSBWorld().end();
 		
+		GameWorld.drawFloors();
 		EntityManager.drawEntities();
+		GameWorld.drawWalls();
 		
 		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Line);
 		Renderer.getSRWorld().setColor(1, 0, 0, 1);

@@ -19,18 +19,18 @@ public class TestEntity extends Entity {
 		
 		Animation a = new Animation(new Animation.Keyframe[] {
 			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 5f }, 100),
-			new Animation.Keyframe(new Vector2(0, -5), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 2f }, 400),
-			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 500),
+			new Animation.Keyframe(new Vector2(0, -2), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 4f }, 600),
+			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 400),
 			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 		}, true);
 		arm.animPos = new Animator(new Vector2(0, 0), true);
 		arm.animPos.addAnimation("shoot", a);
-		arm.animPos.play("shoot");
 		
 		mdl.addPart(base);
 		mdl.addPart(head);
 		head.addSubPart(arm);
 		head.drawSubPartsUnder = true;
+		mdl.playAnimation("shoot");
 		
 		setModel(mdl);
 	}
@@ -42,9 +42,10 @@ public class TestEntity extends Entity {
 	
 	@Override
 	public void update() {
-		getModel().getPart("head").getSubPart("arm").animPos.update();
+		getModel().updateAnimations();
 		
 		getModel().pos.set(pos);
+		getModel().angle = angle;
 		getModel().getPart("head").angle += 0.1f;
 	}
 	

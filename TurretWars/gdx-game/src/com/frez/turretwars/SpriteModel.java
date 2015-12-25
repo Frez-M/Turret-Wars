@@ -40,6 +40,81 @@ public class SpriteModel {
 		parts.remove(part);
 	}
 	
+	public void playAnimation(String name) {
+		for (Part p : parts) {
+			play(name, p);
+		}
+	}
+	
+	private void play(String name, Part part) {
+		if (part.animAng != null) part.animAng.play(name);
+		if (part.animPos != null) part.animPos.play(name);
+		if (part.animScl != null) part.animScl.play(name);
+		for (Part p : part.subParts) {
+			play(name, p);
+		}
+	}
+	
+	public void pauseAnimation(String name) {
+		for (Part p : parts) {
+			pause(name, p);
+		}
+	}
+
+	private void pause(String name, Part part) {
+		if (part.animAng != null) part.animAng.pause(name);
+		if (part.animPos != null) part.animPos.pause(name);
+		if (part.animScl != null) part.animScl.pause(name);
+		for (Part p : part.subParts) {
+			pause(name, p);
+		}
+	}
+	
+	public void resumeAnimation(String name) {
+		for (Part p : parts) {
+			resume(name, p);
+		}
+	}
+
+	private void resume(String name, Part part) {
+		if (part.animAng != null) part.animAng.resume(name);
+		if (part.animPos != null) part.animPos.resume(name);
+		if (part.animScl != null) part.animScl.resume(name);
+		for (Part p : part.subParts) {
+			resume(name, p);
+		}
+	}
+	
+	public void stopAnimation(String name) {
+		for (Part p : parts) {
+			stop(name, p);
+		}
+	}
+
+	private void stop(String name, Part part) {
+		if (part.animAng != null) part.animAng.stop(name);
+		if (part.animPos != null) part.animPos.stop(name);
+		if (part.animScl != null) part.animScl.stop(name);
+		for (Part p : part.subParts) {
+			stop(name, p);
+		}
+	}
+	
+	public void updateAnimations() {
+		for (Part p : parts) {
+			update(p);
+		}
+	}
+	
+	private void update(Part part) {
+		if (part.animAng != null) part.animAng.update();
+		if (part.animPos != null) part.animPos.update();
+		if (part.animScl != null) part.animScl.update();
+		for (Part p : part.subParts) {
+			update(p);
+		}
+	}
+	
 	public static class Part {
 		
 		public final String name;
