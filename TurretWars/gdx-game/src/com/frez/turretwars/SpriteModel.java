@@ -73,6 +73,13 @@ public class SpriteModel {
 		public void removeSubPart(Part part) {
 			subParts.remove(part);
 		}
+		
+		public Part getSubPart(String name) {
+			for (Part p : subParts) {
+				if (p.name.equals(name)) return p;
+			}
+			return null;
+		}
 	}
 	
 }

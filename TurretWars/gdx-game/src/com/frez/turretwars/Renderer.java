@@ -21,6 +21,7 @@ public class Renderer {
 		float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 		Gdx.graphics.getDensity();
 		camWorld = new OrthographicCamera(100f, 100f * aspectRatio);
+		camWorld.zoom = 1;
 		float UIx = 100f / Gdx.graphics.getDensity();
 		float UIy = 100f * aspectRatio / Gdx.graphics.getDensity();
 		camUI = new OrthographicCamera(UIx, UIy);
@@ -31,7 +32,7 @@ public class Renderer {
 		shaderWorld = new LightingShader();
 		
 		sbWorld = new SpriteBatch();
-		sbWorld.setShader(shaderWorld.getProgram());
+		//sbWorld.setShader(shaderWorld.getProgram());
 		sbUI = new SpriteBatch();
 		
 		srWorld = new ShapeRenderer();
@@ -83,41 +84,35 @@ public class Renderer {
 	
 	public static void draw(SpriteModel model) {
 		sbWorld.begin();
+		/*
+		Vector2 pSize = new Vector2(p.size.scl(p.scl));
+		if (p.animScl != null) pSize.scl(p.animScl.get());
+		Vector2 pos = new Vector2(model.pos).add(new Vector2(p.pos).rotate(model.angle).scl(model.scl));
+		if (p.animPos != null) pos.add(p.animPos.get());
+		//pos.sub(pSize);
+		Vector2 size = new Vector2(pSize.scl(model.scl));
+		float angle = model.angle + p.angle;
+		if (p.animAng != null) angle += p.animAng.get().x;*/
+		
+		
 		for (SpriteModel.Part p : model.getParts()) {
-			
-			Vector2 pSize = new Vector2(p.size.scl(p.scl));
-			if (p.animScl != null) pSize.scl(p.animScl.get());
-			Vector2 pos = new Vector2(model.pos).add(new Vector2(p.pos).rotate(model.angle).scl(model.scl));
-			if (p.animPos != null) pos.add(p.animPos.get());
-			pos.sub(pSize);
-			Vector2 size = new Vector2(pSize.scl(model.scl));
-			float angle = model.angle + p.angle;
-			if (p.animAng != null) angle += p.animAng.get().x;
-			
-			drawPart(p, pos, angle, size);
-			/*
-			int uv1x = (int) (p.texture.getWidth() * p.uv1.x);
-			int uv1y = (int) (p.texture.getWidth() * p.uv1.x);
-			int uv2x = (int) (p.texture.getWidth() * p.uv1.x);
-			int uv2y = (int) (p.texture.getWidth() * p.uv1.x);
-			
-			
-			
-			sbWorld.draw(p.texture, pos.x, pos.y, 0f, 0f, size.x, size.y, 1f, 1f, angle, uv1x, uv1y, uv2x, uv2y, false, false);
-			*/
-			
+			drawPart(p, model.pos, model.angle, model.scl);
 		}
 		sbWorld.end();
 	}
 	
 	private static void drawPart(SpriteModel.Part part, Vector2 originPos, float originAngle, Vector2 originScl) {
-		Vector2 pSize = new Vector2(part.size.scl(part.scl));
-		if (part.animScl != null) pSize.scl(part.animScl.get());
-		Vector2 pos = new Vector2(originPos).add(new Vector2(part.pos).rotate(originAngle).scl(originScl));
-		if (part.animPos != null) pos.add(part.animPos.get());
-		pos.sub(pSize);
-		Vector2 size = new Vector2(pSize.scl(originScl));
+		
 		float angle = originAngle + part.angle;
+		if (part.animAng != null) angle += part.animAng.get().x;
+		Vector2 size = new Vector2(part.size).scl(part.scl).scl(originScl);
+		if (part.animScl != null) size.scl(part.animScl.get());
+		Vector2 pos = new Vector2(part.pos);
+		if (part.animPos != null) pos.add(part.animPos.get());
+		pos.rotate(originAngle);
+		pos.add(originPos);
+		Vector2 lPos = new Vector2(pos).sub(new Vector2(size).scl(0.5f));
+		
 		if (part.animAng != null) angle += part.animAng.get().x;
 		int uv1x = (int) (part.texture.getWidth() * part.uv1.x);
 		int uv1y = (int) (part.texture.getHeight() * part.uv1.y);
@@ -126,11 +121,12 @@ public class Renderer {
 		
 		if (part.drawSubPartsUnder) {
 			for (int i = 0; i < part.subParts.size(); i ++) {
-				drawPart(part.subParts.get(i), pos, angle, size);
+				drawPart(part.subParts.get(i), pos, angle, part.scl);
 			}
 		}
 		
-		sbWorld.draw(part.texture, pos.x, pos.y, 0f, 0f, size.x, size.y, 1f, 1f, angle, uv1x, uv1y, uv2x, uv2y, false, false);
+		if (part.texture != null)
+			sbWorld.draw(part.texture, lPos.x, lPos.y, size.x/2f, size.y/2f, size.x, size.y, 1f, 1f, angle, uv1x, uv1y, uv2x, uv2y, false, false);
 		
 		if (!part.drawSubPartsUnder) {
 			for (int i = 0; i < part.subParts.size(); i ++) {

@@ -1,6 +1,8 @@
 package com.frez.turretwars;
 import com.frez.turretwars.entities.*;
 import com.frez.turretwars.resources.*;
+import com.badlogic.gdx.graphics.glutils.*;
+import com.badlogic.gdx.math.*;
 
 public class GameManager {
 	
@@ -31,10 +33,17 @@ public class GameManager {
 	
 	public void render() {
 		Renderer.getSBWorld().begin();
-		Renderer.getSBWorld().draw(Textures.get("ground"), 0, 0, 10, 10);
+		Renderer.getSBWorld().draw(Textures.get("ground"), 0, 0, 50, 50);
 		Renderer.getSBWorld().end();
 		
 		EntityManager.drawEntities();
+		
+		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Line);
+		Renderer.getSRWorld().setColor(1, 0, 0, 1);
+		Renderer.getSRWorld().line(new Vector2(0, 0), new Vector2(50, 0));
+		Renderer.getSRWorld().setColor(0, 1, 0, 1);
+		Renderer.getSRWorld().line(new Vector2(0, 0), new Vector2(0, 50));
+		Renderer.getSRWorld().end();
 		
 	}
 	

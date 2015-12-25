@@ -16,10 +16,13 @@ public class Animator {
 		currentlyPlaying = new ArrayList<PlayingAnimation>();
 		this.defaultState = defaultState;
 		this.resetCurrentWhenFinished = resetWhenFinished;
+		lastCurrent = new Vector2(defaultState);
 	}
 	
 	public void play(String name) {
-		currentlyPlaying.add(anims.get(name).start());
+		PlayingAnimation pa = anims.get(name);
+		if (!currentlyPlaying.contains(pa))
+			currentlyPlaying.add(pa.start());
 	}
 	
 	public void pause(String name) {
@@ -60,6 +63,14 @@ public class Animator {
 	
 	public Vector2 get() {
 		return lastCurrent;
+	}
+	
+	public void addAnimation(String name, Animation anim) {
+		anims.put(name, new PlayingAnimation(anim));
+	}
+	
+	public void removeAnimation(String name) {
+		anims.remove(name);
 	}
 	
 	private static class PlayingAnimation {
