@@ -6,6 +6,7 @@ import com.frez.turretwars.shaders.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.*;
+import java.util.*;
 
 public class Renderer {
 	
@@ -15,13 +16,16 @@ public class Renderer {
 	private static ShapeRenderer srWorld, srUI;
 	
 	private static LightingShader shaderWorld;
+	private static WorldAOShader worldAOShader;
+	
+	private static FrameBuffer worldAOfbo1, worldAOfbo2, worldAOfboFinal;
 	
 	static {
 		
 		float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 		Gdx.graphics.getDensity();
 		camWorld = new OrthographicCamera(100f, 100f * aspectRatio);
-		camWorld.zoom = 1;
+		camWorld.zoom = 1.25f;
 		float UIx = 100f / Gdx.graphics.getDensity();
 		float UIy = 100f * aspectRatio / Gdx.graphics.getDensity();
 		camUI = new OrthographicCamera(UIx, UIy);
@@ -31,8 +35,13 @@ public class Renderer {
 		
 		shaderWorld = new LightingShader();
 		
-		sbWorld = new SpriteBatch();
-		//sbWorld.setShader(shaderWorld.getProgram());
+		worldAOShader = new WorldAOShader();
+		int div = 8;
+		worldAOfbo1 = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth() / div, Gdx.graphics.getHeight() / div, false);
+		worldAOfbo2 = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth() / div, Gdx.graphics.getHeight() / div, false);
+		worldAOfboFinal = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		
+		sbWorld = new SpriteBatch(/*1000, shaderWorld.getProgram()*/);
 		sbUI = new SpriteBatch();
 		
 		srWorld = new ShapeRenderer();
@@ -82,19 +91,48 @@ public class Renderer {
 		return srUI;
 	}
 	
+	public static void renderWorldAO(ArrayList<GameWorld.Wall> walls) {
+		worldAOfbo1.begin();
+		sbWorld.begin();
+		sbWorld.setShader(worldAOShader.getProgram());
+		worldAOShader.setStage(1);
+		for (GameWorld.Wall wall : walls) {
+			wall.draw();
+		}
+		sbWorld.setShader(null);
+		sbWorld.end();
+		worldAOfbo1.end();
+		
+		sbWorld.setProjectionMatrix(new Matrix4().idt());
+		worldAOfbo2.begin();
+		sbWorld.begin();
+		worldAOShader.setStage(2);
+		sbWorld.draw(worldAOfbo1.getColorBufferTexture(), -1, -1, 2, 2);
+		sbWorld.end();
+		worldAOfbo2.end();
+		
+		worldAOfboFinal.begin();
+		sbWorld.begin();
+		sbWorld.setShader(worldAOShader.getProgram());
+		worldAOShader.setStage(3);
+		sbWorld.draw(worldAOfbo2.getColorBufferTexture(), -1, -1, 2, 2);
+		sbWorld.setShader(null);
+		sbWorld.end();
+		worldAOfboFinal.end();
+		
+		sbWorld.setProjectionMatrix(camWorld.combined);
+	}
+	
+	public static void drawWorldAO() {
+		sbWorld.setProjectionMatrix(new Matrix4().idt());
+		sbWorld.begin();
+		sbWorld.draw(worldAOfboFinal.getColorBufferTexture(), -1, -1, 2, 2);
+		sbWorld.end();
+		sbWorld.setProjectionMatrix(camWorld.combined);
+	}
+	
 	public static void draw(SpriteModel model) {
 		sbWorld.begin();
-		/*
-		Vector2 pSize = new Vector2(p.size.scl(p.scl));
-		if (p.animScl != null) pSize.scl(p.animScl.get());
-		Vector2 pos = new Vector2(model.pos).add(new Vector2(p.pos).rotate(model.angle).scl(model.scl));
-		if (p.animPos != null) pos.add(p.animPos.get());
-		//pos.sub(pSize);
-		Vector2 size = new Vector2(pSize.scl(model.scl));
-		float angle = model.angle + p.angle;
-		if (p.animAng != null) angle += p.animAng.get().x;*/
-		
-		
 		for (SpriteModel.Part p : model.getParts()) {
 			drawPart(p, model.pos, model.angle, model.scl);
 		}

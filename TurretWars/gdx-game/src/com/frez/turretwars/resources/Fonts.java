@@ -15,7 +15,7 @@ public class Fonts {
 	}
 
 	public static void load(String name, String file, int size) {
-		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal(file));
+		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/" + file));
 		FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		params.size = size;
 		params.spaceX = 4;

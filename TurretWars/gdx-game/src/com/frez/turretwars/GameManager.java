@@ -3,6 +3,7 @@ import com.frez.turretwars.entities.*;
 import com.frez.turretwars.resources.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.graphics.*;
 
 public class GameManager {
 	
@@ -18,11 +19,21 @@ public class GameManager {
 	private GameManager() {
 		instance = this;
 		
+		initWorld();
+		
 		lastStateTime = System.currentTimeMillis();
 		nextStateTime = TIME_BUILD;
 		
 		EntityManager.createEntity(TestEntity.class);
 		//te.pos.set(50, 50);
+	}
+	
+	private void initWorld() {
+		GameWorld.addFloor(new GameWorld.Floor(Textures.get("ground"), new Vector2(0, 0), new Vector2(100, 150), 0));
+		GameWorld.addWall(new GameWorld.Wall(Textures.get("wall"), new Vector2(75, 0), new Vector2(50, 250), 0));
+		GameWorld.addWall(new GameWorld.Wall(Textures.get("wall"), new Vector2(-75, 0), new Vector2(50, 250), 0));
+		GameWorld.addWall(new GameWorld.Wall(Textures.get("wall"), new Vector2(0, 100), new Vector2(100, 50), 0));
+		GameWorld.addWall(new GameWorld.Wall(Textures.get("wall"), new Vector2(0,-100), new Vector2(100, 50), 0));
 	}
 	
 	public void update() {
@@ -32,11 +43,16 @@ public class GameManager {
 	}
 	
 	public void render() {
-		//Renderer.getSBWorld().begin();
-		//Renderer.getSBWorld().draw(Textures.get("ground"), 0, 0, 50, 50);
-		//Renderer.getSBWorld().end();
 		
+		GameWorld.renderAO();
+		/*
+		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Filled);
+		Renderer.getSRWorld().setColor(Color.WHITE);
+		Renderer.getSRWorld().rect(-100, -100, 200, 200);
+		Renderer.getSRWorld().end();
+		*/
 		GameWorld.drawFloors();
+		GameWorld.drawAO();
 		EntityManager.drawEntities();
 		GameWorld.drawWalls();
 		

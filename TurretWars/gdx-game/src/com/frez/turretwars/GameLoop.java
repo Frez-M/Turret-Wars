@@ -12,6 +12,7 @@ public class GameLoop implements ApplicationListener {
 	@Override
 	public void create() {
 		Textures.load("ground", "textures/ground/diffuse.png");
+		Textures.load("wall", "textures/wall/diffuse.png");
 		
 		Textures.load("player_red", "p1.png");
 		Textures.load("player_blue", "p2.png");
@@ -21,13 +22,15 @@ public class GameLoop implements ApplicationListener {
 		Textures.load("turret_mv42_head", "turret_mv42_head.png");
 		Textures.load("turret_mv42_arm", "turret_mv42_arm.png");
 		
+		Fonts.load("default", "WarfaceRegularRussian.ttf", 32);
+		Fonts.load("default_small", "WarfaceRegularRussian.ttf", 16);
 		
 		manager = GameManager.newInstance();
 	}
 
 	@Override
 	public void render() {
-		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		manager.update();
@@ -38,8 +41,9 @@ public class GameLoop implements ApplicationListener {
 
 	@Override
 	public void dispose() {
-		Textures.unloadAll();
 		Fonts.unloadAll();
+		Textures.unloadAll();
+		Texture.clearAllTextures(Gdx.app);
 	}
 
 	@Override
