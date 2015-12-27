@@ -92,9 +92,13 @@ public class Renderer {
 	}
 	
 	public static void renderWorldAO(ArrayList<GameWorld.Wall> walls) {
+		Gdx.gl.glClearColor(0, 0, 0, 0);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		sbWorld.setShader(worldAOShader.getProgram());
+		
 		worldAOfbo1.begin();
 		sbWorld.begin();
-		sbWorld.setShader(worldAOShader.getProgram());
 		worldAOShader.setStage(1);
 		for (GameWorld.Wall wall : walls) {
 			wall.draw();
@@ -103,31 +107,47 @@ public class Renderer {
 		sbWorld.end();
 		worldAOfbo1.end();
 		
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		sbWorld.setShader(worldAOShader.getProgram());
+		
 		sbWorld.setProjectionMatrix(new Matrix4().idt());
 		worldAOfbo2.begin();
 		sbWorld.begin();
 		worldAOShader.setStage(2);
+		worldAOShader.setImageSize(worldAOfboFinal.getWidth(), worldAOfboFinal.getHeight());
+		
 		sbWorld.draw(worldAOfbo1.getColorBufferTexture(), -1, -1, 2, 2);
 		sbWorld.end();
 		worldAOfbo2.end();
 		
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		sbWorld.setShader(worldAOShader.getProgram());
+		
 		worldAOfboFinal.begin();
 		sbWorld.begin();
-		sbWorld.setShader(worldAOShader.getProgram());
 		worldAOShader.setStage(3);
+		worldAOShader.setImageSize(worldAOfboFinal.getWidth(), worldAOfboFinal.getHeight());
+		
 		sbWorld.draw(worldAOfbo2.getColorBufferTexture(), -1, -1, 2, 2);
-		sbWorld.setShader(null);
 		sbWorld.end();
 		worldAOfboFinal.end();
 		
+		sbWorld.setShader(null);
+		
 		sbWorld.setProjectionMatrix(camWorld.combined);
+		
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	}
 	
 	public static void drawWorldAO() {
 		sbWorld.setProjectionMatrix(new Matrix4().idt());
 		sbWorld.begin();
+		//sbWorld.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+		sbWorld.setColor(1, 1, 1, 1);
 		sbWorld.draw(worldAOfboFinal.getColorBufferTexture(), -1, -1, 2, 2);
+		sbWorld.setColor(Color.WHITE);
 		sbWorld.end();
+		//sbWorld.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		sbWorld.setProjectionMatrix(camWorld.combined);
 	}
 	

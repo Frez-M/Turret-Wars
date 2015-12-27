@@ -44,13 +44,13 @@ public class GameManager {
 	
 	public void render() {
 		
-		GameWorld.renderAO();
-		/*
+		//GameWorld.renderAO();
+		
 		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Filled);
 		Renderer.getSRWorld().setColor(Color.WHITE);
 		Renderer.getSRWorld().rect(-100, -100, 200, 200);
 		Renderer.getSRWorld().end();
-		*/
+		
 		GameWorld.drawFloors();
 		GameWorld.drawAO();
 		EntityManager.drawEntities();

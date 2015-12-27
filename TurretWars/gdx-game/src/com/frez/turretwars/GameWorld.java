@@ -13,6 +13,8 @@ public class GameWorld {
 	
 	private static World w;
 	
+	private static boolean refreshAO = false;
+	
 	static {
 		floors = new ArrayList<Floor>();
 		walls = new ArrayList<Wall>();
@@ -22,7 +24,11 @@ public class GameWorld {
 	private GameWorld() {}
 	
 	public static void update() {
-		
+		if (refreshAO) {
+			refreshAO = false;
+			for (int i = 0; i < 10; i ++)
+				renderAO();
+		}
 	}
 	
 	public static void renderAO() {
@@ -56,6 +62,7 @@ public class GameWorld {
 	public static void addWall(Wall w) {
 		w.init();
 		walls.add(w);
+		refreshAO = true;
 	}
 	
 	public static void removeFloor(Floor f) {
@@ -65,6 +72,7 @@ public class GameWorld {
 	public static void removeWall(Wall w) {
 		w.destroy();
 		walls.remove(w);
+		refreshAO = true;
 	}
 	
 	public static class Floor {
