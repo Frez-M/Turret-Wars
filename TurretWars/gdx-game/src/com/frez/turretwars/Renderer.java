@@ -10,6 +10,8 @@ import java.util.*;
 
 public class Renderer {
 	
+	private static float uiWidth, uiHeight;
+	
 	private static OrthographicCamera camWorld, camUI;
 	
 	private static SpriteBatch sbWorld, sbUI;
@@ -26,11 +28,11 @@ public class Renderer {
 		Gdx.graphics.getDensity();
 		camWorld = new OrthographicCamera(100f, 100f * aspectRatio);
 		camWorld.zoom = 1.25f;
-		float UIx = 100f / Gdx.graphics.getDensity();
-		float UIy = 100f * aspectRatio / Gdx.graphics.getDensity();
-		camUI = new OrthographicCamera(UIx, UIy);
+		uiWidth = Gdx.graphics.getWidth() / Gdx.graphics.getDensity();
+		uiHeight = Gdx.graphics.getHeight() / Gdx.graphics.getDensity();
+		camUI = new OrthographicCamera(uiWidth, uiHeight);
 		
-		camUI.position.set(UIx/2, UIy/2, 0);
+		camUI.position.set(uiWidth/2, uiHeight/2, 0);
 		camUI.update();
 		
 		shaderWorld = new LightingShader();
@@ -39,7 +41,7 @@ public class Renderer {
 		int div = 8;
 		worldAOfbo1 = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth() / div, Gdx.graphics.getHeight() / div, false);
 		worldAOfbo2 = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth() / div, Gdx.graphics.getHeight() / div, false);
-		worldAOfboFinal = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		worldAOfboFinal = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth() / (div/2), Gdx.graphics.getHeight() / (div/2), false);
 		
 		sbWorld = new SpriteBatch(/*1000, shaderWorld.getProgram()*/);
 		sbUI = new SpriteBatch();
@@ -47,6 +49,14 @@ public class Renderer {
 		srWorld = new ShapeRenderer();
 		srUI = new ShapeRenderer();
 		
+	}
+	
+	public static float getUIWidth() {
+		return uiWidth;
+	}
+	
+	public static float getUIHeight() {
+		return uiHeight;
 	}
 	
 	public static void setCamPos(Vector2 pos) {
@@ -143,7 +153,7 @@ public class Renderer {
 		sbWorld.setProjectionMatrix(new Matrix4().idt());
 		sbWorld.begin();
 		//sbWorld.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-		sbWorld.setColor(1, 1, 1, 1);
+		sbWorld.setColor(1, 1, 1, 0.75f);
 		sbWorld.draw(worldAOfboFinal.getColorBufferTexture(), -1, -1, 2, 2);
 		sbWorld.setColor(Color.WHITE);
 		sbWorld.end();

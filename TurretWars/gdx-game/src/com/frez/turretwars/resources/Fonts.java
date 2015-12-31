@@ -17,15 +17,17 @@ public class Fonts {
 	public static void load(String name, String file, int size) {
 		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/" + file));
 		FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		params.size = size;
-		params.spaceX = 4;
-		params.spaceY = 4;
+		params.size = (int) (size * Gdx.graphics.getDensity());
+		params.minFilter = Texture.TextureFilter.Linear;
+		params.magFilter = Texture.TextureFilter.Linear;
 		params.genMipMaps = true;
 		params.borderColor = Color.BLACK;
-		params.borderWidth = 1;
+		params.borderWidth = Gdx.graphics.getDensity();
 		params.borderStraight = false;
 		
-		fonts.put(name, gen.generateFont(params));
+		BitmapFont temp = gen.generateFont(params);
+		temp.getData().setScale(1f/Gdx.graphics.getDensity());
+		fonts.put(name, temp);
 	}
 
 	public static BitmapFont get(String name) {

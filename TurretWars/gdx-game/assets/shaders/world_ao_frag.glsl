@@ -10,7 +10,7 @@ uniform sampler2D u_texture;
 uniform int stage;
 uniform vec2 imgSize;
 
-const float radius = 25.0;
+const float radius = 5.0;
 const float quality = 4.0;
 
 void main() {

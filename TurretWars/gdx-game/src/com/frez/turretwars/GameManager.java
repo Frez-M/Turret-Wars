@@ -16,6 +16,8 @@ public class GameManager {
 	
 	private static GameManager instance;
 	
+	private static Player p1, p2;
+	
 	private GameManager() {
 		instance = this;
 		
@@ -24,8 +26,13 @@ public class GameManager {
 		lastStateTime = System.currentTimeMillis();
 		nextStateTime = TIME_BUILD;
 		
-		EntityManager.createEntity(TestEntity.class);
-		//te.pos.set(50, 50);
+		p1 = (Player) EntityManager.createEntity(Player.class);
+		p1.restart(Player.TEAM_RED);
+		p2 = (Player) EntityManager.createEntity(Player.class);
+		p2.restart(Player.TEAM_BLUE);
+		
+		
+		
 	}
 	
 	private void initWorld() {
