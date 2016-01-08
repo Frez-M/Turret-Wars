@@ -16,7 +16,7 @@ public class Player extends Entity {
 	
 	private Team team;
 	
-	private SpriteModel.Part partTorso;
+	private SpriteModel.Part partTorso, partHead;
 	
 	private Body body;
 	
@@ -33,30 +33,28 @@ public class Player extends Entity {
 		maxHealth = 100;
 		money = 3400;
 		
-		float debugIntensity = 1.5f;
-		
-		partTorso = new SpriteModel.Part("torso", Textures.get("player_torso"), new Vector2(), new Vector2(20, 10), new Vector2(0, 0), new Vector2(1, 1));
+		partTorso = new SpriteModel.Part("torso", Textures.get("player_torso_blue"), new Vector2(), new Vector2(20, 10), new Vector2(0, 0), new Vector2(1, 1));
 		partTorso.animAng = new Animator(new Vector2(), true);
 		partTorso.animAng.addAnimation("walk", new Animation(new Animation.Keyframe[] {
-																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
-																new Animation.Keyframe(new Vector2(5, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 300),
-																new Animation.Keyframe(new Vector2(-5, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
+																 new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																 new Animation.Keyframe(new Vector2(5, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.5f, 1.5f }, 300),
+																 new Animation.Keyframe(new Vector2(-5, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
 																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		
-		SpriteModel.Part partHead = new SpriteModel.Part("head", Textures.get("player"), new Vector2(), new Vector2(10, 10), new Vector2(0, 0), new Vector2(1, 1));
+		partHead = new SpriteModel.Part("head", Textures.get("player_head_blue"), new Vector2(), new Vector2(10, 10), new Vector2(0, 0), new Vector2(1, 1));
 		partHead.animPos = new Animator(new Vector2(), true);
 		partHead.animPos.addAnimation("walk", new Animation(new Animation.Keyframe[] {
-																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
-																new Animation.Keyframe(new Vector2(0.25f, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
-																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
-																new Animation.Keyframe(new Vector2(-0.25f, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
-																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0.25f, 1f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(-0.25f, 1f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		partHead.animPos.addAnimation("idle", new Animation(new Animation.Keyframe[] {
-																new Animation.Keyframe(new Vector2(0, -0.2f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 1200),
-																new Animation.Keyframe(new Vector2(0, 0.2f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 1200),
-																new Animation.Keyframe(new Vector2(0, -0.2f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+																new Animation.Keyframe(new Vector2(0, -0.25f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
+																new Animation.Keyframe(new Vector2(0, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
+																new Animation.Keyframe(new Vector2(0, -0.25f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		
 		SpriteModel mdl = new SpriteModel();
@@ -105,8 +103,12 @@ public class Player extends Entity {
 			btnAction.setPos(new Vector2(32, 32));
 			btnPrev.setPos(new Vector2(32, 64));
 			btnNext.setPos(new Vector2(64+32, 64));
+			
+			partTorso.texture = Textures.get("player_torso_red");
+			partHead.texture = Textures.get("player_head_red");
 		} else if (team == TEAM_BLUE) {
 			angle = 180;
+			getModel().angle = 180;
 			
 			touchpad.setPos(new Vector2(32, Renderer.getUIHeight() - 128 - 32));
 			btnAction.setPos(new Vector2(Renderer.getUIWidth() - 128 - 32, Renderer.getUIHeight() - 32 - 32));
@@ -117,6 +119,9 @@ public class Player extends Entity {
 			btnAction.setUpsideDown(true);
 			btnPrev.setUpsideDown(true);
 			btnNext.setUpsideDown(true);
+			
+			partTorso.texture = Textures.get("player_torso_blue");
+			partHead.texture = Textures.get("player_head_blue");
 		}
 	}
 	
@@ -164,7 +169,14 @@ public class Player extends Entity {
 		
 		getModel().updateAnimations();
 		getModel().pos.set(pos);
-		getModel().angle = angle;
+		
+		float tempDeltaAngle = getModel().angle - angle;
+		if (tempDeltaAngle > 180) {
+			getModel().angle -= 360;
+		} else if (tempDeltaAngle < -180) {
+			getModel().angle += 360;
+		}
+		getModel().angle += (angle - getModel().angle) / 10;
 		
 		
 	}

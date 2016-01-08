@@ -27,8 +27,10 @@ public class GameLoop implements ApplicationListener {
 		
 		Textures.load("player_red", "p1.png");
 		Textures.load("player_blue", "p2.png");
-		Textures.load("player", "player.png");
-		Textures.load("player_torso", "player_torso.png");
+		Textures.load("player_head_red", "player_red.png");
+		Textures.load("player_torso_red", "player_torso_red.png");
+		Textures.load("player_head_blue", "player_blue.png");
+		Textures.load("player_torso_blue", "player_torso_blue.png");
 		
 		Textures.load("turret_base", "turret_base.png");
 		

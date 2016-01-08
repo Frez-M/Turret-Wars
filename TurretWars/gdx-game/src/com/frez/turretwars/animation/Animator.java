@@ -8,15 +8,30 @@ public class Animator {
 	private Map<String, PlayingAnimation> anims;
 	private ArrayList<PlayingAnimation> currentlyPlaying;
 
-	private Vector2 lastCurrent, defaultState;
+	private Vector2 lastRawCurrent, lastCurrent, defaultState;
+	private float delay;
 	private boolean resetCurrentWhenFinished;
+	
+	public Animator(Vector2 defaultState, float delay, boolean resetWhenFinished) {
+		anims = new HashMap<String, PlayingAnimation>();
+		currentlyPlaying = new ArrayList<PlayingAnimation>();
+		this.defaultState = defaultState;
+		this.delay = delay;
+		this.resetCurrentWhenFinished = resetWhenFinished;
+		lastRawCurrent = new Vector2(defaultState);
+		lastCurrent = new Vector2(defaultState);
+		
+	}
 	
 	public Animator(Vector2 defaultState, boolean resetWhenFinished) {
 		anims = new HashMap<String, PlayingAnimation>();
 		currentlyPlaying = new ArrayList<PlayingAnimation>();
 		this.defaultState = defaultState;
+		this.delay = 5;
 		this.resetCurrentWhenFinished = resetWhenFinished;
+		lastRawCurrent = new Vector2(defaultState);
 		lastCurrent = new Vector2(defaultState);
+		
 	}
 	
 	public void play(String name) {
@@ -53,8 +68,8 @@ public class Animator {
 	
 	public void update() {
 		
-		if (!currentlyPlaying.isEmpty()) lastCurrent.setZero();
-		else if (resetCurrentWhenFinished) lastCurrent = new Vector2(defaultState);
+		if (!currentlyPlaying.isEmpty()) lastRawCurrent.setZero();
+		else if (resetCurrentWhenFinished) lastRawCurrent = new Vector2(defaultState);
 		
 		for (PlayingAnimation a : currentlyPlaying) {
 			if (a.playing) {
@@ -73,12 +88,13 @@ public class Animator {
 				}
 			}
 			try {
-				lastCurrent.add(a.anim.get(a.timePos));
+				lastRawCurrent.add(a.anim.get(a.timePos));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
 		}
-		
+		lastCurrent.add(new Vector2(lastRawCurrent).sub(lastCurrent).scl(1/delay));
 	}
 	
 	public Vector2 get() {
