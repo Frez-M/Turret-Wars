@@ -13,12 +13,16 @@ public class GameWorld {
 	
 	private static World w;
 	
+	private static Box2DDebugRenderer dr;
+	
 	private static boolean refreshAO = false;
 	
 	static {
 		floors = new ArrayList<Floor>();
 		walls = new ArrayList<Wall>();
 		w = new World(new Vector2(), false);
+		dr = new Box2DDebugRenderer();
+		dr.setDrawVelocities(true);
 	}
 	
 	private GameWorld() {}
@@ -29,6 +33,8 @@ public class GameWorld {
 			for (int i = 0; i < 10; i ++)
 				renderAO();
 		}
+		
+		w.step(1/60f, 10, 10);
 	}
 	
 	public static void renderAO() {
@@ -53,6 +59,14 @@ public class GameWorld {
 			w.draw();
 		}
 		Renderer.getSBWorld().end();
+	}
+	
+	public static World getPhysicsWorld() {
+		return w;
+	}
+	
+	public static void drawPhysicsDebug() {
+		dr.render(w, Renderer.getSRWorld().getProjectionMatrix());
 	}
 	
 	public static void addFloor(Floor f) {
@@ -115,7 +129,7 @@ public class GameWorld {
 		
 		public void init() {
 			
-			b = BodyCreator.rect(GameWorld.w, pos, angle, new Vector2(size).scl(0.5f), 0.5f, 0.2f);
+			b = BodyCreator.rect(GameWorld.w, pos, angle, new Vector2(size).scl(0.5f), 0.5f, 0.2f, false);
 		}
 		
 		public void destroy() {

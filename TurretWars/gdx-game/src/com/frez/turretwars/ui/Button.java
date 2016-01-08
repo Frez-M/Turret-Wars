@@ -11,23 +11,20 @@ import com.badlogic.gdx.graphics.*;
 
 public class Button extends UIObject {
 	
-	private OnClickListener listener;
-	private boolean wasPressed;
+	private OnPressListener pressListener;
+	private OnClickListener clickListener;
+	
+	private float fPressed, fEnabled;
 	
 	public Button() {
 		
 	}
 	
 	@Override
-	public void update(boolean hovered, boolean pressed) {
+	public void update() {
 		
-		if (hovered && pressed && !wasPressed) {
-			wasPressed = true;
-		} else if (!pressed && wasPressed) {
-			wasPressed = false;
-			if (listener != null) listener.onClick();
-		}
-		
+		fPressed = pressed ? 1 : 0;
+		fEnabled = enabled ? 1 : 0;
 	}
 	
 	@Override
@@ -35,22 +32,52 @@ public class Button extends UIObject {
 		
 		ShapeRenderer sr = Renderer.getSRUI();
 		SpriteBatch sb = Renderer.getSBUI();
-		BitmapFont font = Fonts.get("default_small");
+		BitmapFont font = Fonts.get("ui");
 		
 		sr.begin(ShapeRenderer.ShapeType.Filled);
 		Gdx.gl.glEnable(GL20.GL_BLEND);
-		sr.setColor(0, 0, 0, 0.25f);
-		sr.rect(pos.x, pos.y, size.x, size.y);
-		sr.setColor(color.r, color.g, color.b, 1);
-		sr.rect(pos.x, pos.y, size.x, 4f);
+		sr.setColor(0, 0, 0, 0.5f + 0.25f * (fPressed * fEnabled) - 0.25f * (1 - fEnabled));
+		sr.rect(pos.x + 1, pos.y + 1, size.x - 2, size.y - 2);
+		float temp1 = (1 + fPressed);
+		if (enabled)
+			sr.setColor(color.r / temp1, color.g / temp1, color.b / temp1, 1);
+		else
+			sr.setColor(0.5f, 0.5f / temp1, 0.5f / temp1, 1);
+		sr.rect(pos.x + 1, upsideDown ? pos.y + size.y - 5 : pos.y + 1, size.x - 2, 4f);
 		sr.end();
 		
 		sb.begin();
-		font.setColor(Color.WHITE);
-		font.draw(sb, text, pos.x, pos.y + size.y / 2);
+		if (enabled)
+			font.setColor(Color.WHITE);
+		else
+			font.setColor(Color.GRAY);
+		
+		Matrix4 original = null;
+		if (upsideDown) {
+			original = new Matrix4(sb.getProjectionMatrix());
+			sb.setProjectionMatrix(new Matrix4(original).translate(pos.x + size.x, pos.y + 4, 0).rotate(0, 0, 1, 180));
+		}
+		
+		font.draw(sb, text, upsideDown ? 0 : pos.x, upsideDown ? 0 : pos.y + size.y - 4, size.x, 1, false);
 		font.setColor(color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, 1);
-		font.draw(sb, text, pos.x, pos.y + size.y / 2);
+		if (upsideDown)
+			sb.setProjectionMatrix(new Matrix4(original).translate(pos.x + size.x, pos.y + size.y - 4 - font.getLineHeight(), 0).rotate(0, 0, 1, 180));
+		font.draw(sb, subText, upsideDown ? 0 : pos.x, upsideDown ? 0 : pos.y + 4 + font.getLineHeight(), size.x, 1, false); // pos.y + 4 + font.getLineHeight()
+		
+		if (upsideDown)
+			sb.setProjectionMatrix(original);
+		
 		sb.end();
+	}
+	
+	@Override
+	public void onPress() {
+		if (enabled && pressListener != null) pressListener.onPress();
+	}
+	
+	@Override
+	public void onClick() {
+		if (enabled && clickListener != null) clickListener.onClick();
 	}
 	
 	@Override
@@ -58,8 +85,16 @@ public class Button extends UIObject {
 		return Geometry2DUtils.rect(pos, new Vector2(pos).add(size), point);
 	}
 	
-	public void setOnClick(OnClickListener listener) {
-		this.listener = listener;
+	public void setOnPressListener(OnPressListener listener) {
+		this.pressListener = listener;
+	}
+	
+	public void setOnClickListener(OnClickListener listener) {
+		this.clickListener = listener;
+	}
+	
+	public static interface OnPressListener {
+		public void onPress();
 	}
 	
 	public static interface OnClickListener {

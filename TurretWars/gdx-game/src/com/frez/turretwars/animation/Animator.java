@@ -21,20 +21,34 @@ public class Animator {
 	
 	public void play(String name) {
 		PlayingAnimation pa = anims.get(name);
-		if (!currentlyPlaying.contains(pa))
+		if (pa != null && !currentlyPlaying.contains(pa))
 			currentlyPlaying.add(pa.start());
 	}
 	
 	public void pause(String name) {
-		anims.get(name).playing = false;
+		PlayingAnimation pa = anims.get(name);
+		if (pa != null) pa.playing = false;
 	}
 	
 	public void resume(String name) {
-		anims.get(name).resume();
+		PlayingAnimation pa = anims.get(name);
+		if (pa != null) pa.resume();
 	}
 	
 	public void stop(String name) {
 		currentlyPlaying.remove(anims.get(name));
+	}
+	
+	public void setPlaySpeed(String name, float playSpeed) {
+		PlayingAnimation pa = anims.get(name);
+		if (pa != null)
+			pa.playSpeed = playSpeed;
+	}
+	
+	public void setPlaySpeed(float playSpeed) {
+		for (Map.Entry<String, PlayingAnimation> e : anims.entrySet())
+			if (e.getValue() != null)
+				e.getValue().playSpeed = playSpeed;
 	}
 	
 	public void update() {
@@ -43,20 +57,26 @@ public class Animator {
 		else if (resetCurrentWhenFinished) lastCurrent = new Vector2(defaultState);
 		
 		for (PlayingAnimation a : currentlyPlaying) {
-			
 			if (a.playing) {
 				a.timePos = System.currentTimeMillis() - a.timeStarted;
-				
+				if (a.playSpeed != 1) {
+				//	a.timeStarted += a.timePos * (1 - a.playSpeed);
+				}
 				if (a.timePos >= a.anim.totalTime) {
 					if (a.anim.doesLoop()) {
 						a.start();
+						//a.timePos -= a.anim.totalTime;
+						//a.timeStarted = System.currentTimeMillis() - a.timePos;
 					} else {
 						currentlyPlaying.remove(a);
 					}
 				}
 			}
-			lastCurrent.add(a.anim.get(a.timePos));
-			
+			try {
+				lastCurrent.add(a.anim.get(a.timePos));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
@@ -70,18 +90,21 @@ public class Animator {
 	}
 	
 	public void removeAnimation(String name) {
+		stop(name);
 		anims.remove(name);
 	}
 	
 	private static class PlayingAnimation {
 		
 		public long timeStarted, timePos;
+		public float playSpeed;
 		public boolean playing;
 		public Animation anim;
 		
 		public PlayingAnimation(Animation anim) {
 			this.timeStarted = 0;
 			this.timePos = 0;
+			this.playSpeed = 1f;
 			this.playing = false;
 			this.anim = anim;
 		}

@@ -1,4 +1,5 @@
 package com.frez.turretwars;
+
 import com.frez.turretwars.entities.*;
 import com.frez.turretwars.resources.*;
 import com.badlogic.gdx.graphics.glutils.*;
@@ -8,8 +9,9 @@ import com.badlogic.gdx.graphics.*;
 public class GameManager {
 	
 	public static final long TIME_BUILD = TimeUtils.getSeconds(20, false);
-	public static final long TIME_PREPARE = TimeUtils.getSeconds(5, false);
+	public static final long TIME_PREPARE = TimeUtils.getSeconds(7, false);
 	public static final long TIME_FIGHT = TimeUtils.getSeconds(90, false);
+	public static final long TIME_COOLDOWN = TimeUtils.getSeconds(5, false);
 	
 	private static TimeState currentState;
 	private static long lastStateTime, nextStateTime;
@@ -23,6 +25,7 @@ public class GameManager {
 		
 		initWorld();
 		
+		currentState = TimeState.BUILD;
 		lastStateTime = System.currentTimeMillis();
 		nextStateTime = TIME_BUILD;
 		
@@ -31,7 +34,7 @@ public class GameManager {
 		p2 = (Player) EntityManager.createEntity(Player.class);
 		p2.restart(Player.TEAM_BLUE);
 		
-		
+		//EntityManager.createEntity(TestEntity.class);
 		
 	}
 	
@@ -44,14 +47,18 @@ public class GameManager {
 	}
 	
 	public void update() {
+		if (lastStateTime + nextStateTime >= System.currentTimeMillis()) {
+			changeState();
+		}
+		
 		GameWorld.update();
 		EntityManager.updateEntities();
 		
+		p1.updateUI();
+		p2.updateUI();
 	}
 	
 	public void render() {
-		
-		//GameWorld.renderAO();
 		
 		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Filled);
 		Renderer.getSRWorld().setColor(Color.WHITE);
@@ -59,8 +66,8 @@ public class GameManager {
 		Renderer.getSRWorld().end();
 		
 		GameWorld.drawFloors();
-		GameWorld.drawAO();
 		EntityManager.drawEntities();
+		GameWorld.drawAO();
 		GameWorld.drawWalls();
 		
 		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Line);
@@ -70,18 +77,31 @@ public class GameManager {
 		Renderer.getSRWorld().line(new Vector2(0, 0), new Vector2(0, 50));
 		Renderer.getSRWorld().end();
 		
+		//GameWorld.drawPhysicsDebug();
+		
+		p1.drawUI();
+		p2.drawUI();
+		
 	}
 	
 	private void changeState() {
+		lastStateTime = System.currentTimeMillis();
 		switch (currentState) {
 			case BUILD:
-				
+				currentState = TimeState.PREPARE;
+				nextStateTime = TIME_PREPARE;
 				break;
 			case PREPARE:
-
+				currentState = TimeState.FIGHT;
+				nextStateTime = TIME_FIGHT;
 				break;
 			case FIGHT:
-
+				currentState = TimeState.COOLDOWN;
+				nextStateTime = TIME_COOLDOWN;
+				break;
+			case COOLDOWN:
+				currentState = TimeState.BUILD;
+				nextStateTime = TIME_BUILD;
 				break;
 		}
 	}

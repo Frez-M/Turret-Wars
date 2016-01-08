@@ -59,7 +59,7 @@ public class Animation {
 				case EASE_OUT:{
 						float k = smoothstep(currentTime, currentTime2, time);
 						k = (float) Math.pow(1-k, k1.interpolationParams[0]);
-						return mix(k1.value, k2.value, -k + 1);
+						return mix(k1.value, k2.value, 1 - k);
 					}
 				case EASE_IN_OUT:{
 						float k = smoothstep(currentTime, currentTime2, time);
@@ -68,8 +68,8 @@ public class Animation {
 							k = (float) Math.pow(k*2, k1.interpolationParams[0]);
 							m = 0.5f * k;
 						} else {
-							k = (float) Math.pow(k*2-2, k1.interpolationParams[1]);
-							m = 0.5f * (k + 2);
+							k = (float) Math.pow(1-(k*2-1), k1.interpolationParams[1]);
+							m = 0.5f + (0.5f * (1-k));
 						}
 						return mix(k1.value, k2.value, m);
 					}

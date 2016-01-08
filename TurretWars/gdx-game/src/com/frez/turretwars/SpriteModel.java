@@ -115,6 +115,21 @@ public class SpriteModel {
 		}
 	}
 	
+	public void setAnimationPlaySpeed(float playSpeed) {
+		for (Part p : parts) {
+			setPlaySpeed(playSpeed, p);
+		}
+	}
+	
+	private void setPlaySpeed(float playSpeed, Part part) {
+		if (part.animAng != null) part.animAng.setPlaySpeed(playSpeed);
+		if (part.animPos != null) part.animPos.setPlaySpeed(playSpeed);
+		if (part.animScl != null) part.animScl.setPlaySpeed(playSpeed);
+		for (Part p : part.subParts) {
+			setPlaySpeed(playSpeed, p);
+		}
+	}
+	
 	public static class Part {
 		
 		public final String name;

@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.*;
 import com.frez.turretwars.resources.*;
 import com.badlogic.gdx.math.*;
 import com.frez.turretwars.ui.*;
+import com.frez.turretwars.animation.*;
+import com.frez.turretwars.box2dutils.*;
+import com.badlogic.gdx.physics.box2d.*;
 
 public class Player extends Entity {
 	
@@ -13,36 +16,85 @@ public class Player extends Entity {
 	
 	private Team team;
 	
+	private SpriteModel.Part partTorso;
+	
+	private Body body;
+	
 	private UIContainer ui;
 	private Button btnAction, btnNext, btnPrev;
 	private Touchpad touchpad;
+	
+	private int money, moneyEarned, moneyEarnedTotal;
+	private float walkSpeed;
 	
 	public Player() {
 		super("player", null);
 		
 		maxHealth = 100;
+		money = 3400;
 		
-		SpriteModel.Part partHead = new SpriteModel.Part("head", Textures.get("player"), new Vector2(), new Vector2(20, 20), new Vector2(0, 0), new Vector2(1, 1));
+		float debugIntensity = 1.5f;
+		
+		partTorso = new SpriteModel.Part("torso", Textures.get("player_torso"), new Vector2(), new Vector2(20, 10), new Vector2(0, 0), new Vector2(1, 1));
+		partTorso.animAng = new Animator(new Vector2(), true);
+		partTorso.animAng.addAnimation("walk", new Animation(new Animation.Keyframe[] {
+																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(5, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 300),
+																new Animation.Keyframe(new Vector2(-5, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+															}, true));
+		
+		SpriteModel.Part partHead = new SpriteModel.Part("head", Textures.get("player"), new Vector2(), new Vector2(10, 10), new Vector2(0, 0), new Vector2(1, 1));
+		partHead.animPos = new Animator(new Vector2(), true);
+		partHead.animPos.addAnimation("walk", new Animation(new Animation.Keyframe[] {
+																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(0.25f, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(-0.25f, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { debugIntensity }, 150),
+																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+															}, true));
+		partHead.animPos.addAnimation("idle", new Animation(new Animation.Keyframe[] {
+																new Animation.Keyframe(new Vector2(0, -0.2f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 1200),
+																new Animation.Keyframe(new Vector2(0, 0.2f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { debugIntensity, debugIntensity }, 1200),
+																new Animation.Keyframe(new Vector2(0, -0.2f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+															}, true));
 		
 		SpriteModel mdl = new SpriteModel();
-		
+		mdl.addPart(partTorso);
 		mdl.addPart(partHead);
+		
+		mdl.playAnimation("idle");
 		
 		setModel(mdl);
 		
-		ui = new UIContainer();
 		
+		ui = new UIContainer();
 		
 		touchpad = new Touchpad();
 		touchpad.setSize(new Vector2(128, 128));
 		
 		btnAction = new Button();
-		btnAction.setText("BTN_ACTION");
-		btnAction.setSize(new Vector2(128, 64));
+		btnAction.setText("Buy MV42 ($1200)");
+		btnAction.setSize(new Vector2(128, 32));
 		
+		btnNext = new Button();
+		btnNext.setText("Next");
+		btnNext.setSubText("SP6");
+		btnNext.setSize(new Vector2(64, 32));
+		
+		btnPrev = new Button();
+		btnPrev.setText("Previous");
+		btnPrev.setSubText("P13");
+		btnPrev.setSize(new Vector2(64, 32));
 		
 		ui.addUIObject(touchpad);
 		ui.addUIObject(btnAction);
+		ui.addUIObject(btnNext);
+		ui.addUIObject(btnPrev);
+		
+		body = BodyCreator.circle(GameWorld.getPhysicsWorld(), new Vector2(), 0, 6, 0, 0, true);
+		body.setFixedRotation(true);
+		
 	}
 	
 	public void restart(Team team) {
@@ -51,9 +103,20 @@ public class Player extends Entity {
 		if (team == TEAM_RED) {
 			touchpad.setPos(new Vector2(Renderer.getUIWidth() - 128 - 32, 32));
 			btnAction.setPos(new Vector2(32, 32));
+			btnPrev.setPos(new Vector2(32, 64));
+			btnNext.setPos(new Vector2(64+32, 64));
 		} else if (team == TEAM_BLUE) {
+			angle = 180;
+			
 			touchpad.setPos(new Vector2(32, Renderer.getUIHeight() - 128 - 32));
-			btnAction.setPos(new Vector2(Renderer.getUIWidth() - 128 - 32, Renderer.getUIHeight() - 64 - 32));
+			btnAction.setPos(new Vector2(Renderer.getUIWidth() - 128 - 32, Renderer.getUIHeight() - 32 - 32));
+			btnPrev.setPos(new Vector2(Renderer.getUIWidth() - 128 - 32, Renderer.getUIHeight() - 32 - 64));
+			btnNext.setPos(new Vector2(Renderer.getUIWidth() - 128 + 32, Renderer.getUIHeight() - 32 - 64));
+			
+			touchpad.setUpsideDown(true);
+			btnAction.setUpsideDown(true);
+			btnPrev.setUpsideDown(true);
+			btnNext.setUpsideDown(true);
 		}
 	}
 	
@@ -61,19 +124,49 @@ public class Player extends Entity {
 	public void start() {
 		health = maxHealth;
 		if (team == TEAM_RED) {
-			pos.set(0, -150);
+			pos.set(0, -50);
+			body.setTransform(pos, 0);
 		} else if (team == TEAM_BLUE) {
-			pos.set(0, 150);
+			pos.set(0, 50);
+			body.setTransform(pos, 0);
 		} else {
 			pos.set(0, 0);
 		}
+		
+		walkSpeed = 1f;
 	}
+	
+	private boolean walking;
 	
 	@Override
 	public void update() {
+		pos.set(body.getPosition());
 		
+		Vector2 c = touchpad.getControl();
+		if (!c.isZero()) {
+
+			angle = (float) Math.toDegrees(Math.atan2(-c.x, c.y));
+			//partTorso.animAng.setPlaySpeed("walk", Math.max(Math.abs(c.x), Math.abs(c.y)));
+			
+			if (!walking) {
+				getModel().playAnimation("walk");
+				walking = true;
+			}
+		} else {
+			if (walking) {
+				getModel().stopAnimation("walk");
+				walking = false;
+			}
+		}
+		
+		body.applyForceToCenter(new Vector2(c).nor().scl(body.getMass() * 120), true);
+		body.setLinearVelocity(new Vector2(body.getLinearVelocity()).scl(0.9f));
 		
 		getModel().updateAnimations();
+		getModel().pos.set(pos);
+		getModel().angle = angle;
+		
+		
 	}
 	
 	@Override
@@ -82,6 +175,7 @@ public class Player extends Entity {
 	}
 	
 	public void updateUI() {
+		btnAction.setSubText("$" + money);
 		ui.update();
 	}
 	
@@ -92,6 +186,36 @@ public class Player extends Entity {
 	@Override
 	public void destroy() {
 		
+	}
+	
+	public void setWalkSpeed(float speed) {
+		walkSpeed = speed;
+	}
+	
+	public float getWalkSpeed() {
+		return walkSpeed;
+	}
+	
+	public void giveMoney(int money) {
+		this.money += money;
+		this.moneyEarned += money;
+		this.moneyEarnedTotal += money;
+	}
+	
+	public boolean takeMoney(int money) {
+		if (this.money - money >= 0) {
+			this.money -= money;
+			return true;
+		}
+		return false;
+	}
+	
+	public void returnMoney(int money) {
+		this.money += money;
+	}
+	
+	public int getMoney() {
+		return money;
 	}
 	
 	public Team getTeam() {
