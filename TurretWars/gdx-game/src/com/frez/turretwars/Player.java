@@ -36,25 +36,25 @@ public class Player extends Entity {
 		partTorso = new SpriteModel.Part("torso", Textures.get("player_torso_blue"), new Vector2(), new Vector2(20, 10), new Vector2(0, 0), new Vector2(1, 1));
 		partTorso.animAng = new Animator(new Vector2(), true);
 		partTorso.animAng.addAnimation("walk", new Animation(new Animation.Keyframe[] {
-																 new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
-																 new Animation.Keyframe(new Vector2(5, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.5f, 1.5f }, 300),
-																 new Animation.Keyframe(new Vector2(-5, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
-																new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+																 new Animation.Keyframe(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																 new Animation.Keyframe(new Vector2(5, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.5f, 1.5f }, 300),
+																 new Animation.Keyframe(new Vector2(-5, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
+																 new Animation.Keyframe(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		
 		partHead = new SpriteModel.Part("head", Textures.get("player_head_blue"), new Vector2(), new Vector2(10, 10), new Vector2(0, 0), new Vector2(1, 1));
 		partHead.animPos = new Animator(new Vector2(), true);
 		partHead.animPos.addAnimation("walk", new Animation(new Animation.Keyframe[] {
-																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
-																new Animation.Keyframe(new Vector2(0.25f, 1f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
-																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
-																new Animation.Keyframe(new Vector2(-0.25f, 1f), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
-																new Animation.Keyframe(new Vector2(0, 0.75f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+																new Animation.Keyframe(new Vector2(0, 0.5f), new Vector2(0.25f, 0), new Vector2(0, -0.5f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0.25f, 1f), new Vector2(0, -0.5f), new Vector2(0.25f, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0, 0.5f), new Vector2(-0.25f, 0), new Vector2(0, -0.5f), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(-0.25f, 1f), new Vector2(0, 0.5f), new Vector2(-0.25f, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 1.5f }, 150),
+																new Animation.Keyframe(new Vector2(0, 0.5f), new Vector2(0, 0), new Vector2(0, 0),Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		partHead.animPos.addAnimation("idle", new Animation(new Animation.Keyframe[] {
-																new Animation.Keyframe(new Vector2(0, -0.25f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
-																new Animation.Keyframe(new Vector2(0, 0.25f), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
-																new Animation.Keyframe(new Vector2(0, -0.25f), Animation.Keyframe.InterpolationMode.NONE, null, 0),
+																new Animation.Keyframe(new Vector2(0, -0.25f), new Vector2(0, 0), new Vector2(0, 0),  Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
+																new Animation.Keyframe(new Vector2(0, 0.25f), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN_OUT, new float[] { 1.7f, 1.7f }, 1200),
+																new Animation.Keyframe(new Vector2(0, -0.25f), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 															}, true));
 		
 		SpriteModel mdl = new SpriteModel();
@@ -154,12 +154,14 @@ public class Player extends Entity {
 			//partTorso.animAng.setPlaySpeed("walk", Math.max(Math.abs(c.x), Math.abs(c.y)));
 			
 			if (!walking) {
+				//getModel().stopAnimation("idle");
 				getModel().playAnimation("walk");
 				walking = true;
 			}
 		} else {
 			if (walking) {
 				getModel().stopAnimation("walk");
+				//getModel().playAnimation("idle");
 				walking = false;
 			}
 		}

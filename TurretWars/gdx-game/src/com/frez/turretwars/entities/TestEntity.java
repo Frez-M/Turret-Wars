@@ -18,9 +18,9 @@ public class TestEntity extends Entity {
 		SpriteModel.Part arm = new SpriteModel.Part("arm", Textures.get("turret_mv42_arm"), new Vector2(), new Vector2(30, 30), new Vector2(0, 0), new Vector2(1, 1));
 		
 		Animation a = new Animation(new Animation.Keyframe[] {
-			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 5 }, 100),
-			new Animation.Keyframe(new Vector2(0, -2), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 4 }, 600),
-			new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 400),
+										new Animation.Keyframe(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_IN, new float[] { 5 }, 100),
+										new Animation.Keyframe(new Vector2(0, -2), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.EASE_OUT, new float[] { 4 }, 600),
+										new Animation.Keyframe(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 400),
 			//new Animation.Keyframe(new Vector2(0, 0), Animation.Keyframe.InterpolationMode.NONE, null, 0),
 		}, true);
 		arm.animPos = new Animator(new Vector2(0, 0), true);

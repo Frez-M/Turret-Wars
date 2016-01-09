@@ -36,14 +36,19 @@ public class Animation {
 		for (int i = 0; i < keys.length - 1; i ++) {
 			if (i > 0)
 				currentTime += keys[i-1].delay;
-			
+
 			currentTime2 = currentTime + keys[i].delay;
 			if (time > currentTime2) continue;
-			
+
 			final Keyframe k1 = keys[i];
 			final Keyframe k2 = keys[i+1];
 			
+			if (k1.cp1.isZero() && k1.cp2.isZero())
+				return mix(k1.value, k2.value, getInterpolation(smoothstep(currentTime, currentTime2, time), k1));
+			else
+				return bezierCurveCubic(k1.value, k1.value.cpy().add(k1.cp1), k2.value.cpy().add(k1.cp2), k2.value, getInterpolation(smoothstep(currentTime, currentTime2, time), k1));
 			
+			/*
 			switch (k1.mode) {
 				case NONE:{
 						return k1.value;
@@ -73,10 +78,47 @@ public class Animation {
 						}
 						return mix(k1.value, k2.value, m);
 					}
-			}
-			break;
+			}*/
+			//break;
 		}
 		return null;
+	}
+	
+	private Vector2 bezierCurveCubic(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t) {
+		return new Vector2(
+			pow(1-t, 3) * p1.x + 3 * pow(1-t, 2) * t * p2.x + 3 * (1-t) * pow(t, 2) * p3.x + pow(t, 3) * p4.x,
+			pow(1-t, 3) * p1.y + 3 * pow(1-t, 2) * t * p2.y + 3 * (1-t) * pow(t, 2) * p3.y + pow(t, 3) * p4.y
+		);
+	}
+	
+	private float pow(float a, float b) {
+		return (float) Math.pow(a, b);
+	}
+	
+	private float getInterpolation(float time, Keyframe k1) {
+		switch (k1.mode) {
+			case NONE:{
+					return 0;
+				}
+			case LINEAR:{
+					return time;
+				}
+			case EASE_IN:{
+					return (float) Math.pow(time, k1.interpolationParams[0]);
+				}
+			case EASE_OUT:{
+					return 1 - (float) Math.pow(1-time, k1.interpolationParams[0]);
+				}
+			case EASE_IN_OUT:{
+					if (time < 0.5) {
+						return 0.5f * (float) Math.pow(time*2, k1.interpolationParams[0]);
+					} else {
+						return 0.5f + (0.5f * (1-(float) Math.pow(1-(time*2-1), k1.interpolationParams[1])));
+					}
+				}
+		}
+		
+		return 0;
 	}
 	
 	private Vector2 mix(Vector2 a, Vector2 b, float m) {
@@ -98,13 +140,15 @@ public class Animation {
 	
 	public static class Keyframe {
 		
-		public final Vector2 value;
+		public final Vector2 value, cp1, cp2;
 		public final InterpolationMode mode;
 		public final float[] interpolationParams;
 		public final long delay;
 
-		public Keyframe(Vector2 value, InterpolationMode mode, float[] interpolationParams, long delay) {
+		public Keyframe(Vector2 value, Vector2 cp1, Vector2 cp2, InterpolationMode mode, float[] interpolationParams, long delay) {
 			this.value = value;
+			this.cp1 = cp1;
+			this.cp2 = cp2;
 			this.mode = mode;
 			this.interpolationParams = interpolationParams;
 			this.delay = delay;
