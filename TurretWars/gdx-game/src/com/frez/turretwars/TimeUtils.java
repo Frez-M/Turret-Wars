@@ -23,6 +23,23 @@ public class TimeUtils {
 		return sh + ":" + sm + ":" + ss;
 	}
 	
+	public static final String getTimeText(long time, boolean withMillis) {
+		
+		int h = getHours(time, true);
+		int m = getMinutes(time, true);
+		int s = getSeconds(time, true);
+		
+		String sh = h < 10 ? "0" + h : "" + h;
+		String sm = m < 10 ? "0" + m : "" + m;
+		String ss = s < 10 ? "0" + s : "" + s;
+		if (withMillis) {
+			int ms = getMilliSeconds(time);
+			String sms = (ms < 100 ? (ms < 10 ? "00" : "0") : "") + ms;
+			return sh + ":" + sm + ":" + ss + "." + sms;
+		}
+		return sh + ":" + sm + ":" + ss;
+	}
+	
 	public static final int getHours() {
 		return Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 	}
@@ -56,7 +73,7 @@ public class TimeUtils {
 	}
 	
 	public static final long getTime(int h, int m, int s, int ms) {
-		return getHours(h, false) + getMinutes(m, false) + getSeconds(s, false) + ms;
+		return getRawHours(h) + getRawMinutes(m) + getRawSeconds(s) + ms;
 	}
 	
 	public static final long getRawHours(int h) {

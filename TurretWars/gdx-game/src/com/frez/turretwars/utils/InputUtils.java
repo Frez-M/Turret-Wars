@@ -5,7 +5,19 @@ import java.util.*;
 
 public class InputUtils {
 	
-	static {
+
+	private static Vector2[] pointers;
+	private static ArrayList<InputProcessor> ipArray;
+	
+	private static boolean inited = false;
+	public static void init() {
+		if (inited) return;
+		inited = true;
+		
+		pointers = new Vector2[10];
+		for (int i = 0; i < 10; i ++)
+			pointers[i] = new Vector2();
+		
 		ipArray = new ArrayList<InputProcessor>();
 		Gdx.input.setInputProcessor(new InputProcessor() {
 			public boolean keyDown(int keycode) {
@@ -59,14 +71,7 @@ public class InputUtils {
 		});
 	}
 	
-	private static Vector2[] pointers;
 	public static Vector2 getRawInputPos(int pointer) {
-		if (pointers == null) {
-			pointers = new Vector2[10];
-			for (int i = 0; i < 10; i ++)
-				pointers[i] = new Vector2();
-		}
-		
 		pointers[pointer].set(Gdx.input.getX(pointer), Gdx.input.getY(pointer));
 		return pointers[pointer];
 	}
@@ -78,13 +83,18 @@ public class InputUtils {
 		return temp;
 	}
 	
-	private static ArrayList<InputProcessor> ipArray;
 	public static void addInputProcessor(InputProcessor ip) {
 		ipArray.add(ip);
 	}
 	
 	public static void removeInputProcessor(InputProcessor ip) {
 		ipArray.remove(ip);
+	}
+	
+	public static void dispose() {
+		inited = false;
+		pointers = null;
+		ipArray = null;
 	}
 	
 	

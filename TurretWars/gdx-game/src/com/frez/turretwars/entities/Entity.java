@@ -38,8 +38,17 @@ public abstract class Entity {
 		start();
 	}
 	public abstract void update();
-	public abstract void draw();
 	public abstract void destroy();
+	
+	public void drawLower() {}
+	public void draw() {}
+	public void drawUpper() {}
+	public void drawOver() {}
+	
+	public void drawModel(int level) {
+		if (mdl != null)
+			Renderer.draw(mdl, level);
+	}
 	
 	public Identity getID() {
 		return id;

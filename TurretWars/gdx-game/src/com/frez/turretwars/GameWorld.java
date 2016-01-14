@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.frez.turretwars.box2dutils.*;
+import com.badlogic.gdx.*;
 
 public class GameWorld {
 	
@@ -17,10 +18,14 @@ public class GameWorld {
 	
 	private static boolean refreshAO = false;
 	
-	static {
+	private static boolean inited = false;
+	public static void init() {
+		if (inited) return;
+		inited = true;
 		floors = new ArrayList<Floor>();
 		walls = new ArrayList<Wall>();
 		w = new World(new Vector2(), false);
+		w.setVelocityThreshold(10000);
 		dr = new Box2DDebugRenderer();
 		dr.setDrawVelocities(true);
 	}
@@ -34,7 +39,7 @@ public class GameWorld {
 				renderAO();
 		}
 		
-		w.step(1/60f, 10, 10);
+		w.step(Gdx.graphics.getDeltaTime(), 10, 10);
 	}
 	
 	public static void renderAO() {
@@ -87,6 +92,18 @@ public class GameWorld {
 		w.destroy();
 		walls.remove(w);
 		refreshAO = true;
+	}
+	
+	public static void dispose() {
+		inited = false;
+		w.dispose();
+		w = null;
+		dr.dispose();
+		dr = null;
+		floors.clear();
+		walls.clear();
+		floors = null;
+		walls = null;
 	}
 	
 	public static class Floor {

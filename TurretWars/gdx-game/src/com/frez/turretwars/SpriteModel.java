@@ -40,18 +40,18 @@ public class SpriteModel {
 		parts.remove(part);
 	}
 	
-	public void playAnimation(String name) {
+	public void playAnimation(String name, boolean additive) {
 		for (Part p : parts) {
-			play(name, p);
+			play(name, p, additive);
 		}
 	}
 	
-	private void play(String name, Part part) {
-		if (part.animAng != null) part.animAng.play(name);
-		if (part.animPos != null) part.animPos.play(name);
-		if (part.animScl != null) part.animScl.play(name);
+	private void play(String name, Part part, boolean additive) {
+		if (part.animAng != null) part.animAng.play(name, additive);
+		if (part.animPos != null) part.animPos.play(name, additive);
+		if (part.animScl != null) part.animScl.play(name, additive);
 		for (Part p : part.subParts) {
-			play(name, p);
+			play(name, p, additive);
 		}
 	}
 	
@@ -132,7 +132,15 @@ public class SpriteModel {
 	
 	public static class Part {
 		
+		public static final int DRAWLEVEL_UNDEFINED = 0;
+		public static final int DRAWLEVEL_LOWER = 1;
+		public static final int DRAWLEVEL_MIDDLE = 2;
+		public static final int DRAWLEVEL_UPPER = 3;
+		public static final int DRAWLEVEL_OVER = 4;
+		
 		public final String name;
+		
+		public int drawLevel;
 		
 		public Vector2 pos, size, scl;
 		public float angle;
@@ -145,15 +153,20 @@ public class SpriteModel {
 		public ArrayList<Part> subParts;
 		public boolean drawSubPartsUnder = false;
 		
-		public Part(String name, Texture texture, Vector2 pos, Vector2 size, Vector2 uv1, Vector2 uv2) {
+		public Part(String name, int drawLevel, Texture texture, Vector2 pos, Vector2 size, Vector2 uv1, Vector2 uv2) {
 			this.pos = pos;
 			this.size = size;
 			this.scl = new Vector2(1, 1);
 			this.name = name;
+			this.drawLevel = drawLevel;
 			this.texture = texture;
 			this.uv1 = uv1;
 			this.uv2 = uv2;
 			subParts = new ArrayList<Part>();
+		}
+		
+		public void setDrawLevel(int level) {
+			drawLevel = level;
 		}
 		
 		public void addSubPart(Part part) {

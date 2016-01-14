@@ -28,7 +28,7 @@ public class Animation {
 	}
 	
 	public Vector2 get(long time) {
-		if (keys.length == 1) {
+		if (keys.length == 1 || time < 0) {
 			return keys[0].value;
 		}
 		long currentTime = 0;
@@ -81,7 +81,7 @@ public class Animation {
 			}*/
 			//break;
 		}
-		return null;
+		return keys[keys.length-1].value;
 	}
 	
 	private Vector2 bezierCurveCubic(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t) {

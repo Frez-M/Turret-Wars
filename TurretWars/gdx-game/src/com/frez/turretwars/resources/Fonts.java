@@ -5,6 +5,7 @@ import java.util.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.freetype.*;
 import com.badlogic.gdx.graphics.*;
+import com.frez.turretwars.*;
 
 public class Fonts {
 	
@@ -15,6 +16,7 @@ public class Fonts {
 	}
 
 	public static void load(String name, String file, int size) {
+		GameLoop.log("loading font \"" + name + "\"...", Color.WHITE, TimeUtils.getRawSeconds(5));
 		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/" + file));
 		FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		params.size = (int) (size * Gdx.graphics.getDensity());

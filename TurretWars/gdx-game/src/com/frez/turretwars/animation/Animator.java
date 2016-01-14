@@ -7,7 +7,8 @@ public class Animator {
 	
 	private Map<String, PlayingAnimation> anims;
 	private ArrayList<PlayingAnimation> currentlyPlaying;
-
+	private PlayingAnimation mainAnimation;
+	
 	private Vector2 lastRawCurrent, lastCurrent, defaultState;
 	private float delay;
 	private boolean resetCurrentWhenFinished;
@@ -34,10 +35,14 @@ public class Animator {
 		
 	}
 	
-	public void play(String name) {
+	public void play(String name, boolean additive) {
 		PlayingAnimation pa = anims.get(name);
-		if (pa != null && !currentlyPlaying.contains(pa))
+		if (pa != null && !currentlyPlaying.contains(pa)) {
+			pa.additive = additive;
 			currentlyPlaying.add(pa.start());
+		} else {
+			if (pa != null) pa.start();
+		}
 	}
 	
 	public void pause(String name) {
@@ -69,9 +74,10 @@ public class Animator {
 	public void update() {
 		
 		if (!currentlyPlaying.isEmpty()) lastRawCurrent.setZero();
-		else if (resetCurrentWhenFinished) lastRawCurrent = new Vector2(defaultState);
+		else if (resetCurrentWhenFinished) lastRawCurrent.set(defaultState);
 		
 		for (PlayingAnimation a : currentlyPlaying) {
+			boolean remove = false;
 			if (a.playing) {
 				a.timePos = System.currentTimeMillis() - a.timeStarted;
 				if (a.playSpeed != 1) {
@@ -83,16 +89,18 @@ public class Animator {
 						//a.timePos -= a.anim.totalTime;
 						//a.timeStarted = System.currentTimeMillis() - a.timePos;
 					} else {
-						currentlyPlaying.remove(a);
+						remove = true;
 					}
 				}
 			}
-			try {
-				lastRawCurrent.add(a.anim.get(a.timePos));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			
+			if (a.additive)
+				lastRawCurrent.add(a.anim.get(a.timePos));
+			else
+				lastRawCurrent.set(a.anim.get(a.timePos));
+			
+			if (remove)
+				currentlyPlaying.remove(a);
 		}
 		lastCurrent.add(new Vector2(lastRawCurrent).sub(lastCurrent).scl(1/delay));
 	}
@@ -110,11 +118,18 @@ public class Animator {
 		anims.remove(name);
 	}
 	
+	public void setMainAnimation(String name) {
+		PlayingAnimation pa = anims.get(name);
+		if (pa != null)
+			mainAnimation = pa;
+	}
+	
 	private static class PlayingAnimation {
 		
 		public long timeStarted, timePos;
 		public float playSpeed;
-		public boolean playing;
+		public boolean playing, additive;
+		
 		public Animation anim;
 		
 		public PlayingAnimation(Animation anim) {

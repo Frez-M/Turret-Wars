@@ -22,7 +22,10 @@ public class Renderer {
 	
 	private static FrameBuffer worldAOfbo1, worldAOfbo2, worldAOfboFinal;
 	
-	static {
+	private static boolean inited = false;
+	public static void init() {
+		if (inited) return;
+		inited = true;
 		
 		float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 		Gdx.graphics.getDensity();
@@ -161,15 +164,18 @@ public class Renderer {
 		sbWorld.setProjectionMatrix(camWorld.combined);
 	}
 	
-	public static void draw(SpriteModel model) {
+	public static void draw(SpriteModel model, int level) {
+		if (model == null) return;
+		
 		sbWorld.begin();
 		for (SpriteModel.Part p : model.getParts()) {
-			drawPart(p, model.pos, model.angle, model.scl);
+			drawPart(p, model.pos, model.angle, model.scl, level);
 		}
 		sbWorld.end();
 	}
 	
-	private static void drawPart(SpriteModel.Part part, Vector2 originPos, float originAngle, Vector2 originScl) {
+	private static void drawPart(SpriteModel.Part part, Vector2 originPos, float originAngle, Vector2 originScl, int level) {
+		if (part == null) return;
 		
 		float angle = originAngle + part.angle;
 		if (part.animAng != null) angle += part.animAng.get().x;
@@ -189,18 +195,61 @@ public class Renderer {
 		
 		if (part.drawSubPartsUnder) {
 			for (int i = 0; i < part.subParts.size(); i ++) {
-				drawPart(part.subParts.get(i), pos, angle, part.scl);
+				drawPart(part.subParts.get(i), pos, angle, part.scl, level);
 			}
 		}
 		
-		if (part.texture != null)
+		if (part.texture != null && checkSprMdlLevel(level, part.drawLevel))
 			sbWorld.draw(part.texture, lPos.x, lPos.y, size.x/2f, size.y/2f, size.x, size.y, 1f, 1f, angle, uv1x, uv1y, uv2x, uv2y, false, false);
 		
 		if (!part.drawSubPartsUnder) {
 			for (int i = 0; i < part.subParts.size(); i ++) {
-				drawPart(part.subParts.get(i), pos, angle, size);
+				drawPart(part.subParts.get(i), pos, angle, size, level);
 			}
 		}
+	}
+	
+	private static boolean checkSprMdlLevel(int levelAt, int levelCurrent) {
+		if (levelCurrent == SpriteModel.Part.DRAWLEVEL_UNDEFINED) return true;
+		if (levelAt == levelCurrent) return true;
+		if (levelAt != levelCurrent) return false;
+		return true;
+	}
+	
+	public static void enableBlending() {
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+	}
+	
+	public static void disableBlending() {
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+	}
+	
+	public static void setMixingRendering() {
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	public static void setAdditiveRendering() {
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+	}
+	
+	public static void setMixingRenderingUI() {
+		sbUI.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	public static void setAdditiveRenderingUI() {
+		sbUI.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+	}
+	
+	public static void setMixingRenderingWorld() {
+		sbWorld.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	public static void setAdditiveRenderingWorld() {
+		sbWorld.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+	}
+	
+	public static void dispose() {
+		inited = false;
 	}
 	
 }

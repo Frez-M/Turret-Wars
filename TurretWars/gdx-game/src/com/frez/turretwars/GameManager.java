@@ -8,10 +8,10 @@ import com.badlogic.gdx.graphics.*;
 
 public class GameManager {
 	
-	public static final long TIME_BUILD = TimeUtils.getSeconds(20, false);
-	public static final long TIME_PREPARE = TimeUtils.getSeconds(7, false);
-	public static final long TIME_FIGHT = TimeUtils.getSeconds(90, false);
-	public static final long TIME_COOLDOWN = TimeUtils.getSeconds(5, false);
+	public static final long TIME_BUILD = TimeUtils.getRawSeconds(20);
+	public static final long TIME_PREPARE = TimeUtils.getRawSeconds(7);
+	public static final long TIME_FIGHT = TimeUtils.getRawSeconds(90);
+	public static final long TIME_COOLDOWN = TimeUtils.getRawSeconds(5);
 	
 	private static TimeState currentState;
 	private static long lastStateTime, nextStateTime;
@@ -19,9 +19,12 @@ public class GameManager {
 	private static GameManager instance;
 	
 	private static Player p1, p2;
+	private static SlidingDoors doors;
 	
 	private GameManager() {
 		instance = this;
+		
+		GameWorld.init();
 		
 		initWorld();
 		
@@ -29,12 +32,12 @@ public class GameManager {
 		lastStateTime = System.currentTimeMillis();
 		nextStateTime = TIME_BUILD;
 		
+		doors = (SlidingDoors) EntityManager.createEntity(SlidingDoors.class);
+		
 		p1 = (Player) EntityManager.createEntity(Player.class);
 		p1.restart(Player.TEAM_RED);
 		p2 = (Player) EntityManager.createEntity(Player.class);
 		p2.restart(Player.TEAM_BLUE);
-		
-		//EntityManager.createEntity(TestEntity.class);
 		
 	}
 	
@@ -47,9 +50,12 @@ public class GameManager {
 	}
 	
 	public void update() {
-		if (lastStateTime + nextStateTime >= System.currentTimeMillis()) {
+		if (lastStateTime + nextStateTime <= System.currentTimeMillis()) {
 			changeState();
 		}
+		
+		GameLoop.debug("manager_time_state", "Time state: " + currentState, Color.CYAN);
+		GameLoop.debug("manager_time_state_time_left", "Time left: " + TimeUtils.getTimeText((lastStateTime + nextStateTime) - System.currentTimeMillis(), true), Color.CYAN);
 		
 		GameWorld.update();
 		EntityManager.updateEntities();
@@ -66,21 +72,27 @@ public class GameManager {
 		Renderer.getSRWorld().end();
 		
 		GameWorld.drawFloors();
-		EntityManager.drawEntities();
+		EntityManager.drawEntitiesLower();
 		GameWorld.drawAO();
+		EntityManager.drawEntitiesMiddle();
+		EntityManager.drawEntitiesUpper();
 		GameWorld.drawWalls();
+		EntityManager.drawEntitiesOver();
 		
+		/*
 		Renderer.getSRWorld().begin(ShapeRenderer.ShapeType.Line);
 		Renderer.getSRWorld().setColor(1, 0, 0, 1);
 		Renderer.getSRWorld().line(new Vector2(0, 0), new Vector2(50, 0));
 		Renderer.getSRWorld().setColor(0, 1, 0, 1);
 		Renderer.getSRWorld().line(new Vector2(0, 0), new Vector2(0, 50));
 		Renderer.getSRWorld().end();
+		*/
 		
-		//GameWorld.drawPhysicsDebug();
+		GameWorld.drawPhysicsDebug();
 		
 		p1.drawUI();
 		p2.drawUI();
+		
 		
 	}
 	
@@ -90,20 +102,41 @@ public class GameManager {
 			case BUILD:
 				currentState = TimeState.PREPARE;
 				nextStateTime = TIME_PREPARE;
+				
+				doors.open();
+				
+				p1.start();
+				p2.start();
+				
 				break;
 			case PREPARE:
 				currentState = TimeState.FIGHT;
 				nextStateTime = TIME_FIGHT;
+				
 				break;
 			case FIGHT:
 				currentState = TimeState.COOLDOWN;
 				nextStateTime = TIME_COOLDOWN;
+				
+				doors.close();
+				
+				p1.start();
+				p2.start();
+				
 				break;
 			case COOLDOWN:
 				currentState = TimeState.BUILD;
 				nextStateTime = TIME_BUILD;
+				
 				break;
 		}
+		GameLoop.log("Changed time state to: " + currentState, Color.CYAN, 5000);
+	}
+	
+	public void dispose() {
+		instance = null;
+		EntityManager.dispose();
+		GameWorld.dispose();
 	}
 	
 	public static GameManager newInstance() {
@@ -115,6 +148,22 @@ public class GameManager {
 	
 	public static TimeState getCurrentTimeState() {
 		return currentState;
+	}
+	
+	public static boolean isBuildState() {
+		return currentState == TimeState.BUILD;
+	}
+	
+	public static boolean isPrepareState() {
+		return currentState == TimeState.PREPARE;
+	}
+	
+	public static boolean isFightState() {
+		return currentState == TimeState.FIGHT;
+	}
+	
+	public static boolean isCooldownState() {
+		return currentState == TimeState.COOLDOWN;
 	}
 	
 	public static enum TimeState {
